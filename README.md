@@ -1,53 +1,37 @@
-# Spring MVC & Client-Server Web Application
+# Budget Planner (Fullstack)
 
-## Overview
+A fullstack web application for managing personal finances — built with React, Spring Boot, MongoDB, and WebSocket support. Track your incomes and expenses, categorize them, and visualize your budget in real time.
 
-This project is a multi-stage web application developed as part of a coursework assignment. It evolves from a basic Spring MVC monolith to a client-server architecture, and finally into a database-integrated application with advanced features such as DTOs, exception handling, and WebSockets.
+## Tech Stack
 
----
+### Backend
+- Spring Boot (Java 17)
+- MongoDB (document-based storage)
+- WebSocket (live notifications)
+- JWT Authentication with custom exception handling
 
-## Project Stages
+### Frontend
+- React (Vite + TypeScript)
+- Redux Toolkit for state management
+- React Router v6 for navigation
+- Axios for API communication
+- TailwindCSS for styling
 
-### STAGE 1– Spring MVC Monolith
-- Implemented a monolithic MVC application with:
-  - Minimum 3 domain model classes
-  - Entity relationships (1:n or n:m)
-  - In-memory repository
-  - Full CRUD operations (Create, Read, Update, Delete)
-  - Controllers and Views
-  - Unit Tests
+## Features
 
-### STAGE 2 – Client-Server Conversion
-- Converted the monolithic application into a **client-server** architecture
-- Server side:
-  - Converted Controllers to `@RestController`
-  - Exposed REST endpoints
-  - Implemented basic login functionality
-  - Added 3 new business functionalities (with edge-case handling)
-  - Integrated a new Spring module (e.g., Spring Security or Spring Validation)
-  - Documented endpoints with Swagger
-- Client side:
-  - Interacts with the server through REST APIs
+- Register / Login with JWT-based authentication
+- WebSocket notifications on transaction updates
+- Add, edit, and delete incomes and expenses
+- View totals and group by categories
+- Detailed transaction list with timestamps
+- Error handling and validation
+- Protected routes and session persistence
 
-### STAGE 3 – Database Integration & Advanced Features
-- Integrated the application with an **SQL database**
-- Server side improvements:
-  - Replaced in-memory repository with **JPA Repositories**
-  - Added **DTOs**, **Model-Entity conversion**, and **Mappers**
-  - Included **custom exception handling** using `ResponseEntityExceptionHandler`
-  - Added 2 new features, one of which uses **WebSockets**
-- Optional bonus: refactor towards **microservices architecture**
+## Getting Started
 
----
+### Prerequisites
+- Node.js ≥ 18
+- Java ≥ 17
+- MongoDB (local or remote)
 
-## Technologies Used
-
-- **Java 17**
-- **Spring Boot**
-- **Spring Web / MVC**
-- **Spring Data JPA**
-- **Spring Security / WebSocket** (depending on the chosen module)
-- **Thymeleaf / React** (for front-end, if applicable)
-- **H2 / MySQL** (SQL database)
-- **Swagger / OpenAPI** (for API documentation)
 

@@ -4,12 +4,13 @@ import com.budgetplanner.budget_planner.model.Budget;
 import com.budgetplanner.budget_planner.model.Expense;
 import com.budgetplanner.budget_planner.repository.BudgetRepository;
 import com.budgetplanner.budget_planner.repository.ExpenseRepository;
+import com.budgetplanner.budget_planner.strategy.CSVExpenseReportStrategy;
+import com.budgetplanner.budget_planner.strategy.ExpenseReportStrategy;
+import com.budgetplanner.budget_planner.strategy.XMLExpenseReportStrategy;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 public class ExpenseService {
@@ -45,19 +46,38 @@ public class ExpenseService {
                 .orElseThrow(() -> new NoSuchElementException("Expense not found"));
     }
 
-    public Expense updateExpense(Expense expense) {
-        if(!expenseRepository.existsById(expense.getId())) {
-            throw new NoSuchElementException("Expense not found");
-        }
-        return expenseRepository.save(expense);
-    }
+
 
     public List<Expense> getExpensesByMonth(Long userId, int month, int year) {
         return expenseRepository.findByUserAndMonth(userId, month, year);
     }
 
 
-    public void deleteExpense(Long id) {
-        expenseRepository.deleteById(id);
+
+    public String getReport(Long userId, String format) {
+        List<Expense> expenses = expenseRepository.findAllByUserId(userId);
+
+        ExpenseReportStrategy strategy = switch (format.toLowerCase()) {
+            case "xml" -> new XMLExpenseReportStrategy();
+            case "csv" -> new CSVExpenseReportStrategy();
+            default -> throw new IllegalArgumentException("Unsupported format");
+        };
+
+        return strategy.generateReport(expenses);
     }
+
+    public List<Map<String, Object>> getCategoryChartData(Long userId, int month, int year) {
+        List<Object[]> rawData = expenseRepository.getCategoryExpenseTotals(userId, month, year);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Object[] row : rawData) {
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("category", row[0]);
+            entry.put("total", row[1]);
+            result.add(entry);
+        }
+        return result;
+    }
+
+
 }

@@ -11,9 +11,12 @@ import com.budgetplanner.budget_planner.model.Expense;
 import com.budgetplanner.budget_planner.repository.BudgetRepository;
 import com.budgetplanner.budget_planner.service.BudgetService;
 import com.budgetplanner.budget_planner.service.ExpenseService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -49,7 +52,7 @@ public class ExpenseController {
 
     // POST a new expense
     @PostMapping
-    public ExpenseDTO saveExpense(@RequestBody ExpenseDTO dto) {
+    public ExpenseDTO saveExpense(@Valid @RequestBody ExpenseDTO dto) {
         if (dto.getBudgetId() == null)
             throw new InvalidExpenseException("Budget id is required");
 
@@ -65,13 +68,6 @@ public class ExpenseController {
         return expenseMapper.toDTO(saved);
     }
 
-    // DELETE an expense
-    @DeleteMapping("/{id}")
-    public void deleteExpense(@PathVariable Long id) {
-        Expense exp = expenseService.getExpenseById(id);
-        if (exp == null) throw new ExpenseNotFoundException(id);
-        expenseService.deleteExpense(id);
-    }
 
     // GET expenses by date
     @GetMapping("/user/{userId}/month")
@@ -83,4 +79,22 @@ public class ExpenseController {
                 .map(expenseMapper::toDTO)
                 .toList();
     }
+    @GetMapping("/report")
+    public ResponseEntity<String> generateReport(
+            @RequestParam Long userId,
+            @RequestParam String format
+    ) {
+        return ResponseEntity.ok(expenseService.getReport(userId, format));
+    }
+
+    @GetMapping("/chart/category")
+    public ResponseEntity<List<Map<String, Object>>> getCategoryChart(
+            @RequestParam Long userId,
+            @RequestParam int month,
+            @RequestParam int year) {
+        return ResponseEntity.ok(expenseService.getCategoryChartData(userId, month, year));
+    }
+
+
+
 }

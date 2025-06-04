@@ -5,10 +5,12 @@ import { Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import AddTransactionModal from "../transactions/AddTransaction";
 import BudgetTable from "./BudgetTable";
+import ExpenseChart from "./ExpenseChart";
 //websockets improts
 
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
+import { type } from "@testing-library/user-event/dist/type";
 
 
 
@@ -27,7 +29,8 @@ class Dashboard extends React.Component {
       selectedMonth: new Date().getMonth() + 1,
       selectedYear: new Date().getFullYear(),
       monthlyExpenses: [],
-      monthlyIncomes:[],
+      monthlyIncomes: [],
+      showChart: false,
 
     };
     this.stompClient = null;
@@ -135,7 +138,7 @@ class Dashboard extends React.Component {
       });
   };
 
-fetchMonthlyIncomes = () => {
+  fetchMonthlyIncomes = () => {
     const { selectedMonth, selectedYear, userId } = this.state;
 
     axiosInstance.get(`/incomes/user/${userId}/month`, {
@@ -151,6 +154,35 @@ fetchMonthlyIncomes = () => {
         console.error("Error loading monthly incomes:", err);
         alert("error loading incomes.");
       });
+  };
+
+
+
+  fetchFile = async (type) => {
+    const { userId } = this.state;
+    const format = type.toLowerCase();
+
+    try {
+      const response = await axiosInstance.get(`/expenses/report`, {
+        params: { userId, format },
+        responseType: "blob",
+      });
+
+      const mimeType = format === "xml" ? "text/xml" : "text/csv";
+      const fileName = `expenses_report.${format}`;
+
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: mimeType }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error fetching report", error);
+      alert("Failed to download report.");
+    }
   };
 
   render() {
@@ -198,6 +230,12 @@ fetchMonthlyIncomes = () => {
                   >
                     - Add Expense
                   </button>
+                  <button className="btn btn-outline-success btn-sm" onClick={() => this.fetchFile("xml")}>
+                    Export Expenses XML
+                  </button>
+                  <button className="btn btn-outline-success btn-sm" onClick={() => this.fetchFile("csv")}>
+                    Export Expenses CSV
+                  </button>
                 </div>
               </Col>
 
@@ -234,12 +272,20 @@ fetchMonthlyIncomes = () => {
                       ))}
                     </select>
 
-                    <button className="btn btn-outline-info btn-sm" onClick={this.fetchMonthlyExpenses}>
+                    <button className="btn btn-outline-info btn-sm" onClick={() => this.fetchMonthlyExpenses()}>
                       Show expenses
                     </button>
-                    <button className="btn btn-outline-success btn-sm" onClick={this.fetchMonthlyIncomes}>
+                    <button
+                      className="btn btn-outline-dark btn-sm"
+                      onClick={() => this.setState({ showChart: true })}
+                    >
+                      Visualize Expenses
+                    </button>
+
+                    <button className="btn btn-outline-success btn-sm" onClick={() => this.fetchMonthlyIncomes()}>
                       Show incomes
                     </button>
+
                   </div>
 
                   {/* Display Results */}
@@ -264,6 +310,14 @@ fetchMonthlyIncomes = () => {
                       </ul>
                     </>
                   )}
+                  {this.state.showChart && (
+                    <ExpenseChart
+                      userId={this.state.userId}
+                      month={this.state.selectedMonth}
+                      year={this.state.selectedYear}
+                    />
+                  )}
+
                 </div>
               </Col>
             </Row>

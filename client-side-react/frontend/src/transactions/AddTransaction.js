@@ -9,7 +9,8 @@ class AddTransactionModal extends React.Component {
             amount: "",
             description: "",
             date: "",
-            categoryId: ""
+            categoryId: "",
+            formErrors: {}
         };
     }
 
@@ -17,30 +18,54 @@ class AddTransactionModal extends React.Component {
         this.setState({ [e.target.name]: e.target.value });
     }
 
-    handleSubmit = e => {
-        e.preventDefault();
+    validateForm = () => {
+        const errors = {};
         const { amount, description, date, categoryId } = this.state;
-        const { onSubmit } = this.props;          //  make sure to grab onSubmit
 
-        if (!amount || !description || !date || !categoryId) {
-            return alert("Please fill in all fields.");
+        if (!amount || parseFloat(amount) <= 0) {
+            errors.amount = "Amount must be greater than 0";
         }
 
-        console.log("Submitting payload:", { amount, description, date, categoryId });
+        if (!description || description.trim() === "") {
+            errors.description = "Description is required";
+        }
+
+        if (!date) {
+            errors.date = "Date is required";
+        }
+
+        if (!categoryId) {
+            errors.categoryId = "Category is required";
+        }
+
+        return errors;
+    };
+
+    handleSubmit = e => {
+        e.preventDefault();
+        const errors = this.validateForm();
+
+        if (Object.keys(errors).length > 0) {
+            this.setState({ formErrors: errors });
+            return;
+        }
+
+        const { amount, description, date, categoryId } = this.state;
+        const { onSubmit } = this.props;
 
         onSubmit({
             amount: parseFloat(amount),
             description,
             date,
             categoryId: parseInt(categoryId, 10),
-         
         });
 
-        this.setState({                    // reset the form
+        this.setState({
             amount: "",
             description: "",
             date: "",
-            categoryId: ""
+            categoryId: "",
+            formErrors: {}
         });
     };
 
@@ -67,8 +92,10 @@ class AddTransactionModal extends React.Component {
                                 name="amount"
                                 value={this.state.amount}
                                 onChange={this.handleChange}
-                                required
                             />
+                            {this.state.formErrors.amount && (
+                                <div className="text-danger">{this.state.formErrors.amount}</div>
+                            )}
                         </Form.Group>
 
                         <Form.Group className="mb-3">
@@ -78,8 +105,10 @@ class AddTransactionModal extends React.Component {
                                 name="description"
                                 value={this.state.description}
                                 onChange={this.handleChange}
-                                required
                             />
+                            {this.state.formErrors.amount && (
+                                <div className="text-danger">{this.state.formErrors.description}</div>
+                            )}
                         </Form.Group>
 
                         <Form.Group className="mb-3">
@@ -89,8 +118,10 @@ class AddTransactionModal extends React.Component {
                                 name="date"
                                 value={this.state.date}
                                 onChange={this.handleChange}
-                                required
                             />
+                            {this.state.formErrors.amount && (
+                                <div className="text-danger">{this.state.formErrors.date}</div>
+                            )}
                         </Form.Group>
 
                         <Form.Group className="mb-3">
@@ -99,7 +130,6 @@ class AddTransactionModal extends React.Component {
                                 name="categoryId"
                                 value={this.state.categoryId}
                                 onChange={this.handleChange}
-                                required
                             >
                                 <option value="">
                                     -- Choose a {type === "income" ? "income" : "expense"} category --
@@ -110,6 +140,10 @@ class AddTransactionModal extends React.Component {
                                     </option>
                                 ))}
                             </Form.Select>
+                            {this.state.formErrors.categoryId && (
+                                <div className="text-danger">{this.state.formErrors.categoryId}</div>
+                            )}
+
                         </Form.Group>
 
                         <div className="text-end">

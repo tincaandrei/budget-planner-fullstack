@@ -12,11 +12,25 @@ import java.util.List;
 
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
-    List<Expense> findByBudget_Id(Long budgetId); // expenses under a budget
+
 
     @Query("SELECT e FROM Expense e WHERE MONTH(e.date) = :month AND YEAR(e.date) = :year AND e.budget.user.id = :userId")
     List<Expense> findByUserAndMonth(@Param("userId") Long userId,
                                      @Param("month") int month,
                                      @Param("year") int year);
+
+
+
+    @Query("SELECT e FROM Expense e WHERE e.budget.user.id = :userId")
+    List<Expense> findAllByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT e.category.name, SUM(e.amount) " +
+            "FROM Expense e " +
+            "WHERE MONTH(e.date) = :month AND YEAR(e.date) = :year AND e.budget.user.id = :userId " +
+            "GROUP BY e.category.name")
+    List<Object[]> getCategoryExpenseTotals(@Param("userId") Long userId,
+                                            @Param("month") int month,
+                                            @Param("year") int year);
+
 
 }

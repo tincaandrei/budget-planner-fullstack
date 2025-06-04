@@ -2,6 +2,7 @@ package com.budgetplanner.budget_planner.repository;
 
 import com.budgetplanner.budget_planner.model.Budget;
 
+import com.budgetplanner.budget_planner.model.Expense;
 import com.budgetplanner.budget_planner.model.Income;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @Repository
 public interface IncomeRepository extends JpaRepository<Income, Long> {
-    List<Income> findByBudget_Id(Long budgetId); // incomes under a budget
+
 
 
 

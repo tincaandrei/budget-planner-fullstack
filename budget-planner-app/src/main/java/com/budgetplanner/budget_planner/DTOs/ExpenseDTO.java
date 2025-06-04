@@ -1,5 +1,6 @@
 package com.budgetplanner.budget_planner.DTOs;
 
+import com.budgetplanner.budget_planner.restrictions.PositiveAmount;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 
 public class ExpenseDTO {
     private Long id;
+    @PositiveAmount
     private Double amount;
     private String description;
     private LocalDate date;

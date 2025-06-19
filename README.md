@@ -32,6 +32,6 @@ A fullstack web application for managing personal finances — built with React,
 ### Prerequisites
 - Node.js ≥ 18
 - Java ≥ 17
-- MongoDB (local or remote)
+
 
 
